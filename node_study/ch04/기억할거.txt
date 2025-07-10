@@ -1,0 +1,47 @@
+Sequelize 관계 설정
+
+1. belongsTo (N:1 관계)  = 내가 외래키 가짐
+2. hasOne (1:1 관계)  = 상대방이 외래키 가짐
+3. hasMany (1:N 관계)  = 상대방이 외래키 가짐
+4. belongsToMany (N:N 관계) --근데 잘 안씀 그리고 중간 테이블 필요
+
+
+예시
+
+1:N 관계 (Customer ↔ Order)
+// Customer 모델
+static associate(db) {
+    db.Customer.hasMany(db.Order, {
+        foreignKey: 'CustomerId',
+        sourceKey: 'id'
+    });
+}
+// Order 모델
+static associate(db) {
+    db.Order.belongsTo(db.Customer, {
+        foreignKey: 'CustomerId',
+        targetKey: 'id'
+    });
+}
+
+-----------------------------------------------------------------
+1:1 관계 (User ↔ Profile)
+// User 모델
+static associate(db) {
+    db.User.hasOne(db.Profile, {
+        foreignKey: 'UserId',
+        sourceKey: 'id'
+    });
+}
+
+// Profile 모델
+static associate(db) {
+    db.Profile.belongsTo(db.User, {
+        foreignKey: 'UserId',
+        targetKey: 'id'
+    });
+}
+
+
+
+
