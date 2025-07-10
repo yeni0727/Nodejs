@@ -31,7 +31,7 @@ module.exports = class Country extends Sequelize.Model {
       )
    }
    static associate(db) {
-      db.User.hasMany(db.post, {
+      db.User.hasMany(db.Post, {
          foreignKey: 'user_id',
          sourceKey: 'id',
       })

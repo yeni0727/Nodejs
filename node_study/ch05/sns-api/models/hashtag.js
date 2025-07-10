@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 
-module.exports = class Country extends Sequelize.Model {
+module.exports = class Hashtag extends Sequelize.Model {
    static init(sequelize) {
       return super.init(
          {
@@ -23,10 +23,10 @@ module.exports = class Country extends Sequelize.Model {
       )
    }
    static associate(db) {
-      db.Post.belongsToMany(db.Post, {
+      db.Hashtag.belongsToMany(db.Post, {
          through: 'PostHashtag',
-         foreignKey: 'hashtag_id',
-         sourceKey: 'post_id',
+         foreignKey: 'hashtag_id', // 교차테이블에서 Hashtag 모델의 FK
+         otherKey: 'post_id', // post 모델의 FK
       })
    }
 }

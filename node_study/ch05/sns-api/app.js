@@ -22,7 +22,7 @@ sequelize
       console.log('데이터베이스 연결 성공') //연결 성공시
    })
    .catch((err) => {
-      console.error(err) //연결 실패시 오류 출력
+      console.error(err) //연결 실패
    })
 
 //미들웨어 설정
@@ -61,6 +61,7 @@ app.use((req, res, next) => {
 
 //에러처리
 app.use((err, req, res, next) => {
+   console.error(err) //라우터 에러들도 여기 뜨게함
    const statusCode = err.static || 500
    const errMessage = err.message || '서버 내부 오류'
 
