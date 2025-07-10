@@ -11,11 +11,19 @@ const authRouter = require('./routes/auth')
 const postRouter = require('./routes/post')
 const pageRouter = require('./routes/page')
 const userRouter = require('./routes/user')
-
+const { sequelize } = require('./models')
 const app = express()
 app.set('port', process.env.PORT || 8002)
 
 //시퀄라이즈를 이용한 DB연결
+sequelize
+   .sync({ force: false })
+   .then(() => {
+      console.log('데이터베이스 연결 성공') //연결 성공시
+   })
+   .catch((err) => {
+      console.error(err) //연결 실패시 오류 출력
+   })
 
 //미들웨어 설정
 app.use(morgan('dev'))
