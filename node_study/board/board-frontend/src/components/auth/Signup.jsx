@@ -2,12 +2,11 @@ import { TextField, Button, Container, Typography, CircularProgress } from '@mui
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { registerUserThunk, clearAuthError } from '../../features/authSlice'
-import { useEffect } from 'react'
+import { registerMemberThunk } from '../../features/authSlice'
 
 function Signup() {
    const [email, setEmail] = useState('')
-   const [nick, setNick] = useState('')
+   const [name, setName] = useState('')
    const [password, setPassword] = useState('')
    const [confirmPassword, setConfirmPassword] = useState('') //패스워드확인
    const [isSignupComplete, setIsSignupComplete] = useState(false) // 회원가입  완료 여부
@@ -16,21 +15,9 @@ function Signup() {
    const navigate = useNavigate()
    const { loading, error } = useSelector((state) => state.auth)
 
-   /*
-   라우터를 사용해 경로가 바뀌면 이젠 컴포넌트는 언마운트가된다
-   이 뒷정리 함수는 컴포넌트가 언마운트 되기 직전에 실행된다
-   즉, 컴포넌트가 언마운트 되기전에 error state가 null로 초기화
-   */
-   useEffect(() => {
-      //회원가입 컴포넌트를 벗어날때 error state가 null로 초기화
-      return () => {
-         dispatch(clearAuthError())
-      }
-   }, [dispatch])
-
    //회원가입 버튼 클릭시 실행
    const handleSignup = () => {
-      if (!email.trim() || !nick.trim() || !password.trim() || !confirmPassword.trim()) {
+      if (!email.trim() || !name.trim() || !password.trim() || !confirmPassword.trim()) {
          alert('모든 필드를 입력해주세요!')
          return
       }
@@ -39,7 +26,7 @@ function Signup() {
          alert('비밀번호가 일치하지 않습니다!')
          return
       }
-      dispatch(registerUserThunk({ email, nick, password }))
+      dispatch(registerMemberThunk({ email, name, password }))
          .unwrap()
          .then(() => {
             //회원가입 성공시
@@ -88,7 +75,7 @@ function Signup() {
 
          <TextField label="이메일" variant="outlined" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-         <TextField label="사용자 이름" variant="outlined" fullWidth margin="normal" value={nick} onChange={(e) => setNick(e.target.value)} />
+         <TextField label="사용자 이름" variant="outlined" fullWidth margin="normal" value={name} onChange={(e) => setName(e.target.value)} />
 
          <TextField label="비밀번호" variant="outlined" type="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} />
 

@@ -2,22 +2,22 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import { useDispatch } from 'react-redux'
-import { logoutUserThunk } from '../../features/authSlice'
-import { Link, useNavigate } from 'react-router-dom'
 import IconButton from '@mui/material/IconButton'
 import CreateIcon from '@mui/icons-material/Create'
+import { useDispatch } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom'
+import { logoutMemberThunk } from '../../features/authSlice'
 
-function Navbar({ isAuthenticated, user }) {
+function Navbar({ isAuthenticated, member }) {
    const dispatch = useDispatch()
    const navigate = useNavigate()
 
    // 로그아웃 버튼을 눌렀을때 로그아웃
    const handleLogout = () => {
-      dispatch(logoutUserThunk())
+      dispatch(logoutMemberThunk())
          .unwrap()
          .then(() => {
-            navigate('/') //로그아웃 완료 후 메인페이지로 이동
+            navigate('/')
          })
          .catch((error) => {
             alert('로그아웃 실패:', error)
@@ -41,8 +41,7 @@ function Navbar({ isAuthenticated, user }) {
                   </Link>
                   <Link to="/my" style={{ textDecoration: 'none' }}>
                      <Typography variant="body1" style={{ marginRight: '20px', color: 'black' }}>
-                        {/* ?(optional chaining): 값이 undefined 이거나 null일때 에러를 반환하지 않고 그냥 undefined를 반환 */}
-                        {user?.nick}님
+                        {member?.name}님
                      </Typography>
                   </Link>
                   <Button onClick={handleLogout} variant="outlined">

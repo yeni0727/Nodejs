@@ -2,37 +2,28 @@ import { TextField, Button, Container, Typography, CircularProgress } from '@mui
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { clearAuthError, loginUserThunk } from '../../features/authSlice'
-import { useEffect } from 'react'
+import { loginMemberThunk } from '../../features/authSlice'
 
 function Login() {
-   const [email, setEmail] = useState('') // 이메일
-   const [password, setPassword] = useState('') //비밀번호
+   const [email, setEmail] = useState('')
+   const [password, setPassword] = useState('')
    const dispatch = useDispatch()
    const navigate = useNavigate()
    const { loading, error } = useSelector((state) => state.auth)
 
-   useEffect(() => {
-      //로그인 컴포넌트를 벗어날때 error state가 null로 초기화
-      return () => {
-         dispatch(clearAuthError())
-      }
-   }, [dispatch])
-
-   // 로그인 버튼 눌렀을때
+   //로그인 버튼 눌렀을때
    const handleLogin = (e) => {
       e.preventDefault()
       if (!email.trim() || !password.trim()) {
-         alert('이메일과 패스워드를 입력해주세요.')
+         alert('이메일과 패스워드를 입력해주세요')
          return
       }
 
-      dispatch(loginUserThunk({ email, password }))
+      dispatch(loginMemberThunk({ email, password }))
          .unwrap()
-         .then(() => navigate('/')) // 로그인 성공시 메인페이지로 이동
-         .catch((error) => console.error('로그인 실패:', error))
+         .then(() => navigate('/')) //로그인 성공시 메인 페이지로 이동
+         .catch((error) => console.error('로그인실패:', error))
    }
-
    return (
       <Container maxWidth="sm">
          <Typography variant="h4" gutterBottom>
@@ -68,7 +59,7 @@ function Login() {
          </form>
 
          <p>
-            계정이 없으신가요? <Link to="/signup">회원가입</Link>
+            계정이 없으신가요? <Link to="/signup"> 회원가입</Link>
          </p>
       </Container>
    )
