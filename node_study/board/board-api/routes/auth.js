@@ -1,16 +1,19 @@
 const express = require('express')
-const bcrypt = require('bcrypt') //암호화모듈
+const bcrypt = require('bcrypt')
+const passport = require('passport')
 const router = express.Router()
 const Member = require('../models/member')
+const { isLoggedIn, isNotLoggedIn } = require('./middlewares')
 
-router.post('/join', async (req, res, next) => {
+// 회원가입
+router.post('/join', isNotLoggedIn, async (req, res, next) => {
    try {
       const { email, name, password } = req.body
 
       const exMember = await Member.findOne({
          where: { email },
       })
-      //기존 사용자일때
+
       if (exMember) {
          return res.status(409).json({
             success: false,
@@ -18,18 +21,14 @@ router.post('/join', async (req, res, next) => {
          })
       }
 
-      //이메일 중복 X -> 새로운 사용자 계정 생성
-      //1.비밀번호 암호화
-      const hash = await bcrypt.hash(password, 12) //12:salt(해시 암호화를 진행시 추가되는 임의의 데이트로 주로 10~12정도의 값이 권장됨)
+      const hash = await bcrypt.hash(password, 12)
 
-      //2.새로운 사용자 생성
       const newMember = await Member.create({
          email,
          name,
          password: hash,
       })
 
-      //3.성공 응답 반환
       res.status(201).json({
          success: true,
          message: '사용자가 성공적으로 등록되었습니다.',
@@ -40,9 +39,68 @@ router.post('/join', async (req, res, next) => {
          },
       })
    } catch (error) {
-      //에러 발생시 미들웨어로 전달
       error.message = '회원가입 중 오류가 발생했습니다.'
       next(error)
    }
+})
+
+// 로그인
+router.post('/login', isNotLoggedIn, (req, res, next) => {
+   passport.authenticate('local', (authError, member, info) => {
+      if (authError) {
+         console.error(authError)
+         return next(authError)
+      }
+      if (!member) {
+         return res.status(401).json({
+            success: false,
+            message: info.message || '로그인에 실패했습니다.',
+         })
+      }
+
+      return req.login(member, (loginError) => {
+         if (loginError) {
+            console.error(loginError)
+            return next(loginError)
+         }
+         return res.json({
+            success: true,
+            message: '로그인 성공',
+            member: {
+               id: member.id,
+               email: member.email,
+               name: member.name,
+            },
+         })
+      })
+   })(req, res, next)
+})
+
+// 로그아웃
+router.post('/logout', isLoggedIn, (req, res) => {
+   req.logout((err) => {
+      if (err) {
+         return res.status(500).json({
+            success: false,
+            message: '로그아웃 중 오류가 발생했습니다.',
+         })
+      }
+      res.json({
+         success: true,
+         message: '로그아웃 되었습니다.',
+      })
+   })
+})
+
+router.get('/status', isLoggedIn, (req, res) => {
+   res.json({
+      success: true,
+      message: '로그인 상태입니다.',
+      member: {
+         id: req.user.id,
+         email: req.user.email,
+         name: req.user.name,
+      },
+   })
 })
 module.exports = router

@@ -3,9 +3,11 @@ const passport = require('passport')
 const bcrypt = require('bcrypt') //암호화모듈
 const router = express.Router()
 const User = require('../models/user')
+const { isLoggedIn, isNotLoggedIn } = require('./middlewares')
 
 //회원가입 localhost:8000/auth
-router.post('/join', async (req, res, next) => {
+//로그인이 안된 상태일때만 회원가입을 진행하도록 한다
+router.post('/join', isNotLoggedIn, async (req, res, next) => {
    try {
       const { email, nick, password } = req.body
 
@@ -54,7 +56,8 @@ router.post('/join', async (req, res, next) => {
 })
 
 // 로그인 localhost:8000/auth/login
-router.post('/login', async (req, res, next) => {
+//로그인이 안된 상태일때만 로그인을 하도록 한다
+router.post('/login', isNotLoggedIn, async (req, res, next) => {
    // authenticate 함수는 localStrategy.js 에 작성한 인증과정을 실행한다. 그 과정에서 에러발생시 authError 객체에 값을 주고, 인증과정 성공시 user에는 인증과정에서 passport에 넘겨줬던 exUser값이 들어있다.
    passport.authenticate('local', (authError, user, info) => {
       if (authError) {

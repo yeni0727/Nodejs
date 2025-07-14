@@ -66,3 +66,22 @@ export const checkAuthStatus = async () => {
       throw error
    }
 }
+
+//포스트 등록
+export const createPost = async (postDate) => {
+   try {
+      console.log('postDate: ', postDate)
+      //★파일 전송시 반드시 해야하는 headers설정
+      const config = {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+         },
+      }
+
+      const response = await snsApi.post('/post', postDate, config)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error}`)
+      throw error
+   }
+}

@@ -7,13 +7,22 @@ const Board = require('./board')
 
 const db = {}
 
-const sequelize = new Sequelize(config.database, config.membername, config.password, config)
+const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
+// DB
 db.sequelize = sequelize
+db.Sequelize = Sequelize
 db.Member = Member
 db.Board = Board
 
+//초기화
 Member.init(sequelize)
 Board.init(sequelize)
+
+Object.keys(db).forEach((modelName) => {
+   if (db[modelName].associate) {
+      db[modelName].associate(db)
+   }
+})
 
 module.exports = db
