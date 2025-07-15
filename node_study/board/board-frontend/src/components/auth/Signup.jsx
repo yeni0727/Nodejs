@@ -38,7 +38,7 @@ function Signup() {
          })
    }
 
-   //회원가입이 완려되었을때 보일 컴포넌트
+   //회원가입이 완료되었을때 보일 컴포넌트
    if (isSignupComplete) {
       return (
          <Container maxWidth="sm">

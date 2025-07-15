@@ -2,7 +2,7 @@ const express = require('express')
 const multer = require('multer')
 const fs = require('fs')
 const path = require('path')
-const { Board } = require('../models')
+const { Board, Member } = require('../models')
 const { isLoggedIn } = require('./middlewares')
 const router = express.Router()
 
@@ -35,7 +35,7 @@ const upload = multer({
 // 게시글 작성
 router.post('/', isLoggedIn, upload.single('img'), async (req, res, next) => {
    try {
-      console.log('Received file:', req.file) // 파일 확인
+      console.log('file:', req.file) // 파일 확인
       const { title, content } = req.body
       const img = req.file ? req.file.filename : null
 
@@ -49,10 +49,59 @@ router.post('/', isLoggedIn, upload.single('img'), async (req, res, next) => {
       res.status(201).json({
          success: true,
          message: '게시글이 등록되었습니다.',
-         board,
+         post: {
+            id: board.id,
+            title: board.title,
+            content: board.content,
+            img: board.img,
+            memberId: board.memberId,
+         },
       })
    } catch (error) {
-      console.error('Error occurred:', error) // 에러 로그
+      error.status = 500
+      error.message = '게시물 등록 중 오류가 발생했습니다.'
+      next(error)
+   }
+})
+
+//전체 게시물 불러오기
+router.get('/', async (req, res, next) => {
+   try {
+      const page = parseInt(req.query.page, 10) || 1
+      const limit = parseInt(req.query.limit, 10) || 3
+      const offset = (page - 1) * limit // 오프셋
+
+      //1. 게시물 레코드의 전체 갯수 가져오기
+      const count = await Board.count()
+
+      // 2.게시물 레코드 가져오기
+      const posts = await Board.findAll({
+         limit,
+         offset,
+         order: [['createdAt', 'DESC']], //게시물 최신날짜순으로 가져오려고
+         include: [
+            {
+               model: Member,
+               attributes: ['id', 'name', 'email'],
+            },
+         ],
+      })
+      console.log('Posts: ', posts)
+
+      res.status(200).json({
+         success: true,
+         posts,
+         pagination: {
+            totalPosts: count, // 전체 게시물 수
+            currentPage: page, // 현재 페이지
+            totalPages: Math.ceil(count / limit), // 총 페이지 수
+            limit, // 페이지당 게시물 수
+         },
+         message: '전체 게시물 리스트를 성공적으로 불러왔습니다.',
+      })
+   } catch (error) {
+      error.status = 500
+      error.message = '게시물 리스트를 불러오는 중 오류가 발생했습니다.'
       next(error)
    }
 })

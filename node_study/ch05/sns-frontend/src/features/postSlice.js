@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { createPost } from '../api/snsApi'
+import { createPost, getPosts } from '../api/snsApi'
 
 //게시물 등록
 export const createPostThunk = createAsyncThunk('post/createPost', async (postData, { rejectedWithValue }) => {
@@ -38,18 +38,25 @@ export const createPostThunk = createAsyncThunk('post/createPost', async (postDa
 //    }
 // })
 
-// //전체 게시물 가져오기
-// export const fetchPostsThunk = createAsyncThunk('posts/fetchPosts', async (page, { rejectWithValue }) => {
-//    try {
-//    } catch (error) {
-//       return rejectWithValue(error.response?.data?.message)
-//    }
-// })
+// 전체 게시물 가져오기
+export const fetchPostsThunk = createAsyncThunk('posts/fetchPosts', async (page, { rejectWithValue }) => {
+   try {
+      console.log('page: ', page)
+      const response = await getPosts(page)
+
+      console.log(response)
+      return response.data
+   } catch (error) {
+      return rejectWithValue(error.response?.data?.message)
+   }
+})
 
 const postSlice = createSlice({
    name: 'posts',
    initialState: {
-      post: null,
+      post: null, //게시글 데이터
+      posts: [], //게시글 리스트 (배열형태라 빈배열로 줌)
+      pagination: null, //페이징 객체
       loading: false,
       error: null,
    },
@@ -70,20 +77,20 @@ const postSlice = createSlice({
             state.error = action.payload
          })
       // 게시물 리스트 불러오기
-      //    builder
-      //       .addCase(fetchPostsThunk.pending, (state) => {
-      //          state.loading = true
-      //          state.error = null
-      //       })
-      //       .addCase(fetchPostsThunk.fulfilled, (state, action) => {
-      //          state.loading = false
-      //          state.posts = action.payload.posts
-      //          state.pagination = action.payload.pagination
-      //       })
-      //       .addCase(fetchPostsThunk.rejected, (state, action) => {
-      //          state.loading = false
-      //          state.error = action.payload
-      //       })
+      builder
+         .addCase(fetchPostsThunk.pending, (state) => {
+            state.loading = true
+            state.error = null
+         })
+         .addCase(fetchPostsThunk.fulfilled, (state, action) => {
+            state.loading = false
+            state.posts = action.payload.posts
+            state.pagination = action.payload.pagination
+         })
+         .addCase(fetchPostsThunk.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+         })
       //    // 특정 게시물 불러오기
       //    builder
       //       .addCase(fetchPostByIdThunk.pending, (state) => {

@@ -166,6 +166,54 @@ router.get('/:id', async (req, res, next) => {
 // 전체 게시물 불러오기(페이징 기능) localhost:8000/post?page=1&limit=3
 router.get('/', async (req, res, next) => {
    try {
+      // parseInt('08', 10) -> 10진수 8을 반환
+      const page = parseInt(req.query.page, 10) || 1 //페이지 번호
+      const limit = parseInt(req.query.limit, 10) || 3 //한페이지당 나타낼 게시물 갯수
+      const offset = (page - 1) * limit // 오프셋 계산
+
+      //1. 게시물 레코드의 전체 갯수 가져오기(SELECT COUNT(*) FROM POSTS)
+      const count = await Post.count()
+
+      // 2.게시물 레코드 가져오기
+      /*
+       page:1, limit:3, offset: 0 -> 0개의 레코드를 건너띄고 3개의 최신 레코드를 가져온다
+         select * from posts order by createdAt desc limit 3 offset 0
+
+         page:2, limit:3, offset: 3 -> 3개의 레코드를 건너띄고 4번째 부터 3개의 최신 레코드를 가져온다
+         select * from posts order by createdAt desc limit 3 offset 3
+
+         page:3, limit:3, offset: 6 -> 6개의 레코드를 건너띄고 7번째 부터 3개의 최신 레코드를 가져온다
+         select * from posts order by createdAt desc limit 3 offset 6
+      
+      */
+      const posts = await Post.findAll({
+         limit,
+         offset,
+         order: [['createdAt', 'DESC']], //게시물 최신날짜순으로 가져오려고
+         include: [
+            {
+               model: User,
+               attributes: ['id', 'nick', 'email'],
+            },
+            {
+               model: Hashtag,
+               attributes: ['title'],
+            },
+         ],
+      })
+      console.log('Posts: ', posts)
+
+      res.status(200).json({
+         success: true,
+         posts,
+         pagination: {
+            totalPosts: count, // 전체 게시물 수
+            currentPage: page, // 현재 페이지
+            totalPages: Math.ceil(count / limit), // 총 페이지 수
+            limit, // 페이지당 게시물 수
+         },
+         message: '전체 게시물 리스트를 성공적으로 불러왔습니다.',
+      })
    } catch (error) {
       error.status = 500
       error.message = '게시물 리스트를 불러오는 중 오류가 발생했습니다.'

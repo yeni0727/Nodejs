@@ -1,17 +1,15 @@
 exports.isLoggedIn = (req, res, next) => {
-   // naxt → next
    if (req.isAuthenticated()) {
       next() //로그인이 됐으면 다음 미들웨어로 이동
    } else {
       const error = new Error('로그인이 필요합니다.')
-      error.status = 403 // states → status
-      return next(error) // naxt → next
+      error.status = 403
+      return next(error)
    }
 }
 
 //비로그인 상태 확인 미들웨어
 exports.isNotLoggedIn = (req, res, next) => {
-   // naxt → next
    if (!req.isAuthenticated()) {
       //로그인 되지 않았을 경우 다음 미들웨어로 이동
       next()

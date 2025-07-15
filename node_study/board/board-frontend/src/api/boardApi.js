@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const BASE_URL = import.meta.env.VITE_APP_API_URL
 
-const snsApi = axios.create({
+const boardApi = axios.create({
    baseURL: BASE_URL,
    headers: {
       'Content-Type': 'application/json', //req,res를 json 객체로 주고받겠다
@@ -14,7 +14,7 @@ const snsApi = axios.create({
 export const registerMember = async (memberData) => {
    try {
       console.log('memberdata: ', memberData)
-      const response = await snsApi.post('/auth/join', memberData)
+      const response = await boardApi.post('/auth/join', memberData)
       console.log('Response:', response) // response를 사용하여 출력
       return response
    } catch (error) {
@@ -27,7 +27,8 @@ export const registerMember = async (memberData) => {
 export const loginMember = async (credential) => {
    try {
       console.log('credential: ', credential)
-      const response = await snsApi.post('/auth/login', credential)
+      const response = await boardApi.post('/auth/login', credential)
+      console.log('response: ', response)
       return response
    } catch (error) {
       console.log(`API Request 오류: ${error.message}`)
@@ -37,7 +38,7 @@ export const loginMember = async (credential) => {
 // 로그아웃
 export const logoutMember = async () => {
    try {
-      const response = await snsApi.post('/auth/logout')
+      const response = await boardApi.post('/auth/logout')
       return response
    } catch (error) {
       console.log(`API Request 오류: ${error.message}`)
@@ -48,10 +49,12 @@ export const logoutMember = async () => {
 // 상태 확인
 export const checkAuthStatus = async () => {
    try {
-      const response = await snsApi.get('/auth/status')
+      const response = await boardApi.get('/auth/status')
       return response.data
    } catch (error) {
       console.log(`API Request 오류: ${error.message}`)
+      console.error('Response:', error.response?.data)
+      console.error('Status:', error.response?.status)
       throw error
    }
 }
@@ -59,7 +62,7 @@ export const checkAuthStatus = async () => {
 //업로드
 export const uploadPost = async (formData) => {
    try {
-      const response = await snsApi.post('/board', formData, {
+      const response = await boardApi.post('/board', formData, {
          headers: {
             'Content-Type': 'multipart/form-data',
          },
@@ -67,6 +70,17 @@ export const uploadPost = async (formData) => {
       return response.data
    } catch (error) {
       console.log(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}
+
+//전체 게시글 가져오기(페이징)
+export const getPosts = async (page) => {
+   try {
+      const response = await boardApi.get(`/board?page=${page}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error}`)
       throw error
    }
 }

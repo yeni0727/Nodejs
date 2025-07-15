@@ -15,10 +15,9 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
       })
 
       if (exMember) {
-         return res.status(409).json({
-            success: false,
-            message: '이미 존재하는 사용자입니다',
-         })
+         const error = new Error('이미 존재하는 사용자입니다.')
+         error.status = 409
+         return next(error)
       }
 
       const hash = await bcrypt.hash(password, 12)
@@ -39,6 +38,7 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
          },
       })
    } catch (error) {
+      error.status = 500
       error.message = '회원가입 중 오류가 발생했습니다.'
       next(error)
    }
@@ -48,22 +48,25 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
 router.post('/login', isNotLoggedIn, (req, res, next) => {
    passport.authenticate('local', (authError, member, info) => {
       if (authError) {
-         console.error(authError)
+         authError.status = 500
+         authError.message = '인증 중 오류 발생'
          return next(authError)
       }
+
       if (!member) {
-         return res.status(401).json({
-            success: false,
-            message: info.message || '로그인에 실패했습니다.',
-         })
+         const err = new Error(info.message || '로그인 실패')
+         err.status = 401
+         return next(err)
       }
 
-      return req.login(member, (loginError) => {
+      req.login(member, (loginError) => {
          if (loginError) {
-            console.error(loginError)
+            loginError.status = 500
+            loginError.message = '로그인 중 오류 발생'
             return next(loginError)
          }
-         return res.json({
+
+         res.status(200).json({
             success: true,
             message: '로그인 성공',
             member: {
@@ -77,30 +80,46 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
 })
 
 // 로그아웃
-router.post('/logout', isLoggedIn, (req, res) => {
-   req.logout((err) => {
-      if (err) {
-         return res.status(500).json({
-            success: false,
-            message: '로그아웃 중 오류가 발생했습니다.',
-         })
+router.post('/logout', isLoggedIn, (req, res, next) => {
+   req.logout((logoutError) => {
+      if (logoutError) {
+         logoutError.status = 500
+         logoutError.message = '로그아웃 중 오류 발생'
+         return next(logoutError)
       }
-      res.json({
+
+      res.status(200).json({
          success: true,
-         message: '로그아웃 되었습니다.',
+         message: '로그아웃에 성공했습니다.',
       })
    })
 })
 
-router.get('/status', isLoggedIn, (req, res) => {
-   res.json({
-      success: true,
-      message: '로그인 상태입니다.',
-      member: {
-         id: req.user.id,
-         email: req.user.email,
-         name: req.user.name,
-      },
-   })
+// 현재 로그인 상태 확인
+router.get('/status', async (req, res, next) => {
+   try {
+      if (req.isAuthenticated()) {
+         // 로그인이 되었을때
+         res.status(200).json({
+            isAuthenticated: true,
+            member: {
+               id: req.user.id,
+               email: req.user.email,
+               name: req.user.name,
+            },
+         })
+      } else {
+         // 로그인이 되지 않았을때
+         res.status(200).json({
+            isAuthenticated: false,
+            member: null,
+         })
+      }
+   } catch (error) {
+      error.status = 500
+      error.message = '로그인 상태확인 중 오류가 발생했습니다.'
+      next(error)
+   }
 })
+
 module.exports = router

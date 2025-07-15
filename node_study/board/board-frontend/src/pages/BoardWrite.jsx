@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { writePost, resetWriteState } from '../features/boardWriteSlice'
+import { writePost, resetWriteState } from '../features/boardSlice'
 import BoardWriteForm from '../components/post/BoardWriteForm'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,7 +10,7 @@ function BoardWrite() {
 
    const dispatch = useDispatch()
    const navigate = useNavigate()
-   const { loading, error, success } = useSelector((state) => state.boardWrite)
+   const { loading, error, post } = useSelector((state) => state.board)
 
    // handleSubmit에서 이미지를 받으므로 image 상태는 필요 없음
    const handleSubmit = (e, imageFile) => {
@@ -25,16 +25,20 @@ function BoardWrite() {
    }
 
    useEffect(() => {
-      if (success) {
+      console.log('=== useEffect 실행 ===')
+      console.log('현재 post 값:', post)
+      console.log('현재 loading 값:', loading)
+      console.log('현재 error 값:', error)
+      if (post) {
          alert('게시글 업로드 성공')
-         dispatch(resetWriteState())
          setTitle('')
          setContent('')
          navigate('/')
+         dispatch(resetWriteState())
       } else if (error) {
          alert('게시글 업로드 실패')
       }
-   }, [success, error, dispatch, navigate])
+   }, [post, error, dispatch, navigate])
 
    return (
       <div>

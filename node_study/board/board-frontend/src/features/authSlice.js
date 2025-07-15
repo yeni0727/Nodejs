@@ -36,7 +36,8 @@ export const logoutMemberThunk = createAsyncThunk('auth/logoutMember', async (_,
 export const checkAuthStatusThunk = createAsyncThunk('auth/checkAuthStatus', async (_, { rejectWithValue }) => {
    try {
       const response = await checkAuthStatus()
-      return response.data
+      console.log('로그인 상태확인:', response)
+      return response
    } catch (error) {
       return rejectWithValue(error.response?.data?.message)
    }
@@ -45,7 +46,7 @@ export const checkAuthStatusThunk = createAsyncThunk('auth/checkAuthStatus', asy
 const authSlice = createSlice({
    name: 'auth',
    initialState: {
-      user: null, //사용자 정보 객체
+      member: null, //사용자 정보 객체
       isAuthenticated: false, //로그인상태 t:로 f:아웃
       loading: false,
       error: null,
@@ -59,7 +60,7 @@ const authSlice = createSlice({
       })
       builder.addCase(registerMemberThunk.fulfilled, (state, action) => {
          state.loading = false
-         state.user = action.payload
+         state.member = action.payload
       })
       builder.addCase(registerMemberThunk.rejected, (state, action) => {
          state.loading = false
@@ -74,7 +75,7 @@ const authSlice = createSlice({
          .addCase(loginMemberThunk.fulfilled, (state, action) => {
             state.loading = false
             state.isAuthenticated = true
-            state.user = action.payload
+            state.member = action.payload
          })
          .addCase(loginMemberThunk.rejected, (state, action) => {
             state.loading = false
@@ -89,7 +90,7 @@ const authSlice = createSlice({
          .addCase(logoutMemberThunk.fulfilled, (state) => {
             state.loading = false
             state.isAuthenticated = false
-            state.user = null //로그아웃 후 유저 정보 초기화
+            state.member = null //로그아웃 후 유저 정보 초기화
          })
          .addCase(logoutMemberThunk.rejected, (state, action) => {
             state.loading = false
@@ -104,15 +105,14 @@ const authSlice = createSlice({
          .addCase(checkAuthStatusThunk.fulfilled, (state, action) => {
             state.loading = false
             //상태가 어떨지 모르기 때문에 아래와같이 값을 준다
-
             state.isAuthenticated = action.payload.isAuthenticated
-            state.user = action.payload.user || null
+            state.member = action.payload.member || null
          })
          .addCase(checkAuthStatusThunk.rejected, (state, action) => {
             state.loading = false
             state.error = action.payload
             state.isAuthenticated = false
-            state.user = null
+            state.member = null
          })
    },
 })

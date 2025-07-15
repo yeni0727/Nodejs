@@ -8,16 +8,23 @@ import { Route, Routes } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { checkAuthStatusThunk } from './features/authSlice'
 import { useEffect } from 'react'
-
 function App() {
    const dispatch = useDispatch()
-   const { isAuthenticated, user } = useSelector((state) => state.auth) //로그인 상태 가져오기(로그아웃일때null)
+   const { isAuthenticated, member, loading } = useSelector((state) => state.auth) // loading 추가
+
    useEffect(() => {
       dispatch(checkAuthStatusThunk())
    }, [dispatch])
+
+   console.log('Auth state:', { isAuthenticated, member, loading })
+
+   if (loading) {
+      return <div>Loading...</div>
+   }
+
    return (
       <>
-         <Navbar isAuthenticated={isAuthenticated} user={user} />
+         <Navbar isAuthenticated={isAuthenticated} member={member} />
          <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<SignupPage />} />
