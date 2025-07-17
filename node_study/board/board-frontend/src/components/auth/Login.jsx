@@ -41,7 +41,7 @@ function Login() {
 
             <TextField label="비밀번호" type="password" name="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-            <Button variant="contained" color="primary" type="submit" fullWidth disabled={loading} sx={{ position: 'relative', marginTop: '20px' }}>
+            <Button variant="contained" color="secondary" type="submit" fullWidth disabled={loading} sx={{ position: 'relative', marginTop: '20px' }}>
                {loading ? (
                   <CircularProgress
                      size={24}

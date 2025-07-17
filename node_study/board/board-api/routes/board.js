@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { Board, Member } = require('../models')
 const { isLoggedIn } = require('./middlewares')
+
 const router = express.Router()
 
 const uploadDir = path.join(__dirname, '../uploads')
@@ -64,11 +65,66 @@ router.post('/', isLoggedIn, upload.single('img'), async (req, res, next) => {
    }
 })
 
+//게시글 수정
+router.put('/:id', isLoggedIn, upload.single('img'), async (req, res, next) => {
+   try {
+      const post = await Board.findOne({
+         where: { id: req.params.id, memberId: req.user.id },
+      })
+
+      if (!post) {
+         const error = new Error('게시물을 찾을 수 없습니다.')
+         error.status = 404
+         return next(error)
+      }
+
+      await post.update({
+         title: req.body.title,
+         content: req.body.content,
+         img: req.file ? req.file.filename : post.img,
+      })
+
+      res.status(200).json({
+         success: true,
+         post: post,
+         message: '게시물이 성공적으로 수정되었습니다.',
+      })
+   } catch (error) {
+      // console.error('서버 에러:', error)
+      error.status = 500
+      error.message = '게시물 수정 중 오류가 발생했습니다.'
+      next(error)
+   }
+})
+
+//게시글 삭제 localhost:8000/post/:id
+router.delete('/:id', isLoggedIn, async (req, res, next) => {
+   try {
+      const post = await Board.findOne({
+         where: { id: req.params.id, memberId: req.user.id },
+      })
+      if (!post) {
+         const error = new Error('게시물을 찾을 수 없습니다.')
+         error.status = 404
+         return next(error)
+      }
+      await post.destroy()
+      res.status(200).json({
+         success: true,
+         message: '게시물이 성공적으로 삭제되었습니다.',
+      })
+   } catch (error) {
+      error.status = 500
+      error.message = '게시물 삭제 중 오류가 발생했습니다.'
+      next(error)
+   }
+})
+
 //전체 게시물 불러오기
 router.get('/', async (req, res, next) => {
    try {
       const page = parseInt(req.query.page, 10) || 1
-      const limit = parseInt(req.query.limit, 10) || 3
+      const limit = parseInt(req.query.limit, 10) || 5
       const offset = (page - 1) * limit // 오프셋
 
       //1. 게시물 레코드의 전체 갯수 가져오기
@@ -106,4 +162,34 @@ router.get('/', async (req, res, next) => {
    }
 })
 
+//특정 게시물 불러오기
+router.get('/:id', async (req, res, next) => {
+   try {
+      const post = await Board.findByPk(req.params.id, {
+         include: [
+            {
+               model: Member,
+               attributes: ['id', 'name', 'email'],
+            },
+         ],
+      })
+
+      if (!post) {
+         const error = new Error('게시물을 찾을 수 없습니다.')
+         error.status = 404
+         return next(error)
+      }
+
+      res.status(200).json({
+         success: true,
+         post,
+         message: '게시물을 성공적으로 불러왔습니다.',
+      })
+   } catch (error) {
+      console.error('게시물 조회 오류:', error)
+      error.status = 500
+      error.message = '게시물을 불러오는 중 오류가 발생했습니다.'
+      next(error)
+   }
+})
 module.exports = router

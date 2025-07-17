@@ -84,3 +84,39 @@ export const getPosts = async (page) => {
       throw error
    }
 }
+
+// 특정 게시글 가져오기
+export const getPostById = async (id) => {
+   try {
+      const response = await boardApi.get(`/board/${id}`)
+      return response.data
+   } catch (error) {
+      console.error('API Request 오류:', error.message)
+      throw error
+   }
+}
+//수정하기
+export const updatePost = async (id, formData) => {
+   try {
+      const response = await boardApi.put(`/board/${id}`, formData, {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+         },
+      })
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}
+
+//삭제하기
+export const deletePost = async (id) => {
+   try {
+      const response = await boardApi.delete(`/board/${id}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}

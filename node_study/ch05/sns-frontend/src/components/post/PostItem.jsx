@@ -3,11 +3,30 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import dayjs from 'dayjs' //날짜 시간 포맷해주는 패키지
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { deletePostThunk, fetchPostsThunk } from '../../features/postSlice'
 
 function PostItem({ post, isAuthenticated, user }) {
+   const dispatch = useDispatch()
+   const navigate = useNavigate()
+
    //게시물 삭제
-   const onClickDelete = (id) => {}
+   const onClickDelete = (id) => {
+      const result = confirm('삭제하시겠습니까?')
+      if (result) {
+         dispatch(deletePostThunk(id))
+            .unwrap()
+            .then(() => {
+               dispatch(fetchPostsThunk()) //삭제된후 바로 리스트 새로 불러오기
+               navigate('/')
+            })
+            .catch((error) => {
+               console.error('삭제중 오류발생', error)
+               alert('삭제중 오류 발생' + error)
+            })
+      }
+   }
 
    return (
       <Card style={{ margin: '20px 0' }}>

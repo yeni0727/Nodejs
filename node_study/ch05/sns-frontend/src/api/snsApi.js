@@ -96,3 +96,43 @@ export const getPosts = async (page) => {
       throw error
    }
 }
+
+//특정 포스트 가져오기
+
+export const getPostById = async (id) => {
+   try {
+      // id: 특정 post 의 id(PK)
+      const response = await snsApi.get(`/post/${id}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error}`)
+      throw error
+   }
+}
+
+//포스트 수정하기
+export const updatePost = async (id, postDate) => {
+   try {
+      const config = {
+         headers: {
+            'Content-Type': 'multipart/form-data',
+         },
+      }
+      const response = await snsApi.put(`/post/${id}`, postDate, config)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error}`)
+      throw error
+   }
+}
+
+//포스트 삭제하기 (id:특정 post의 pk)
+export const deletePost = async (id) => {
+   try {
+      const response = await snsApi.delete(`/post/${id}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error}`)
+      throw error
+   }
+}

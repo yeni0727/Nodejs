@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { createPost, getPosts } from '../api/snsApi'
+import { createPost, getPosts, getPostById, updatePost, deletePost } from '../api/snsApi'
 
 //게시물 등록
 export const createPostThunk = createAsyncThunk('post/createPost', async (postData, { rejectedWithValue }) => {
    try {
-      console.log('postData :', postData)
       const response = await createPost(postData)
+      console.log('postData :', postData)
 
       console.log(response)
       return response.data.post
@@ -15,28 +15,43 @@ export const createPostThunk = createAsyncThunk('post/createPost', async (postDa
 })
 
 //게시물 수정
-// export const updatePostThunk = createAsyncThunk('posts/updatePost', async (data, { rejectWithValue }) => {
-//    try {
-//    } catch (error) {
-//       return rejectWithValue(error.response?.data?.message)
-//    }
-// })
+export const updatePostThunk = createAsyncThunk('posts/updatePost', async (data, { rejectWithValue }) => {
+   try {
+      const { id, postData } = data
+      console.log('data :', data)
 
-// //게시물 삭제
-// export const deletePostThunk = createAsyncThunk('posts/deletePost', async (id, { rejectWithValue }) => {
-//    try {
-//    } catch (error) {
-//       return rejectWithValue(error.response?.data?.message)
-//    }
-// })
+      const response = await updatePost(id, postData)
+      return response.data.post
+   } catch (error) {
+      return rejectWithValue(error.response?.data?.message)
+   }
+})
 
-// //특정 게시물 가져오기
-// export const fetchPostByIdThunk = createAsyncThunk('posts/fetchPostById', async (id, { rejectWithValue }) => {
-//    try {
-//    } catch (error) {
-//       return rejectWithValue(error.response?.data?.message)
-//    }
-// })
+//게시물 삭제
+export const deletePostThunk = createAsyncThunk('posts/deletePost', async (id, { rejectWithValue }) => {
+   try {
+      console.log('포스트id: ', id)
+      const response = await deletePost(id)
+
+      console.log(response)
+      return response.data
+   } catch (error) {
+      return rejectWithValue(error.response?.data?.message)
+   }
+})
+
+//특정 게시물 가져오기
+export const fetchPostByIdThunk = createAsyncThunk('posts/fetchPostById', async (id, { rejectWithValue }) => {
+   try {
+      console.log('포스트 id: ', id)
+      const response = await getPostById(id)
+
+      console.log(response)
+      return response.data
+   } catch (error) {
+      return rejectWithValue(error.response?.data?.message)
+   }
+})
 
 // 전체 게시물 가져오기
 export const fetchPostsThunk = createAsyncThunk('posts/fetchPosts', async (page, { rejectWithValue }) => {
@@ -91,46 +106,47 @@ const postSlice = createSlice({
             state.loading = false
             state.error = action.payload
          })
-      //    // 특정 게시물 불러오기
-      //    builder
-      //       .addCase(fetchPostByIdThunk.pending, (state) => {
-      //          state.loading = true
-      //          state.error = null
-      //       })
-      //       .addCase(fetchPostByIdThunk.fulfilled, (state, action) => {
-      //          state.loading = false
-      //          state.post = action.payload.post
-      //       })
-      //       .addCase(fetchPostByIdThunk.rejected, (state, action) => {
-      //          state.loading = false
-      //          state.error = action.payload
-      //       })
-      //    // 게시물 삭제
-      //    builder
-      //       .addCase(deletePostThunk.pending, (state) => {
-      //          state.loading = true
-      //          state.error = null
-      //       })
-      //       .addCase(deletePostThunk.fulfilled, (state) => {
-      //          state.loading = false
-      //       })
-      //       .addCase(deletePostThunk.rejected, (state, action) => {
-      //          state.loading = false
-      //          state.error = action.payload
-      //       })
-      //    // 게시물 수정
-      //    builder
-      //       .addCase(updatePostThunk.pending, (state) => {
-      //          state.loading = true
-      //          state.error = null
-      //       })
-      //       .addCase(updatePostThunk.fulfilled, (state) => {
-      //          state.loading = false
-      //       })
-      //       .addCase(updatePostThunk.rejected, (state, action) => {
-      //          state.loading = false
-      //          state.error = action.payload
-      //       })
+      // 특정 게시물 불러오기
+      builder
+         .addCase(fetchPostByIdThunk.pending, (state) => {
+            state.loading = true
+            state.error = null
+         })
+         .addCase(fetchPostByIdThunk.fulfilled, (state, action) => {
+            state.loading = false
+            state.post = action.payload.post
+         })
+         .addCase(fetchPostByIdThunk.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+         })
+      // 게시물 삭제
+      builder
+         .addCase(deletePostThunk.pending, (state) => {
+            state.loading = true
+            state.error = null
+         })
+         .addCase(deletePostThunk.fulfilled, (state) => {
+            state.loading = false
+         })
+         .addCase(deletePostThunk.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+         })
+      // 게시물 수정
+      builder
+         .addCase(updatePostThunk.pending, (state) => {
+            state.loading = true
+            state.error = null
+         })
+         .addCase(updatePostThunk.fulfilled, (state, action) => {
+            state.loading = false
+            state.post = action.payload
+         })
+         .addCase(updatePostThunk.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+         })
    },
 })
 

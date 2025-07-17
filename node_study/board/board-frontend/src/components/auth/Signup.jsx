@@ -9,11 +9,11 @@ function Signup() {
    const [name, setName] = useState('')
    const [password, setPassword] = useState('')
    const [confirmPassword, setConfirmPassword] = useState('') //패스워드확인
-   const [isSignupComplete, setIsSignupComplete] = useState(false) // 회원가입  완료 여부
 
    const dispatch = useDispatch()
    const navigate = useNavigate()
-   const { loading, error } = useSelector((state) => state.auth)
+
+   const { loading, error, isSignupComplete } = useSelector((state) => state.auth)
 
    //회원가입 버튼 클릭시 실행
    const handleSignup = () => {
@@ -29,16 +29,14 @@ function Signup() {
       dispatch(registerMemberThunk({ email, name, password }))
          .unwrap()
          .then(() => {
-            //회원가입 성공시
-            setIsSignupComplete(true)
+            console.log('회원가입 성공')
          })
          .catch(() => {
-            //회원가입중 에러 발생시
             console.error('회원가입 에러: ', error)
          })
    }
 
-   //회원가입이 완료되었을때 보일 컴포넌트
+   //회원가입이 완료되었을때 보일 컴포넌트 (Redux store의 isSignupComplete 사용)
    if (isSignupComplete) {
       return (
          <Container maxWidth="sm">
@@ -82,7 +80,7 @@ function Signup() {
          <TextField label="비밀번호 확인" variant="outlined" type="password" fullWidth margin="normal" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
 
          {/* 로딩중이면 회원가입 버튼 비활성화 */}
-         <Button variant="contained" color="primary" onClick={handleSignup} fullWidth disabled={loading} style={{ marginTop: '20px' }}>
+         <Button variant="contained" color="secondary" onClick={handleSignup} fullWidth disabled={loading} style={{ marginTop: '20px' }}>
             {loading ? <CircularProgress size={24} /> : '회원가입'}
          </Button>
       </Container>

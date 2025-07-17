@@ -48,6 +48,7 @@ const authSlice = createSlice({
    initialState: {
       member: null, //사용자 정보 객체
       isAuthenticated: false, //로그인상태 t:로 f:아웃
+      isSignupComplete: false,
       loading: false,
       error: null,
    },
@@ -57,14 +58,17 @@ const authSlice = createSlice({
       builder.addCase(registerMemberThunk.pending, (state) => {
          state.loading = true
          state.error = null
+         state.isSignupComplete = false
       })
       builder.addCase(registerMemberThunk.fulfilled, (state, action) => {
          state.loading = false
          state.member = action.payload
+         state.isSignupComplete = true
       })
       builder.addCase(registerMemberThunk.rejected, (state, action) => {
          state.loading = false
          state.error = action.payload
+         state.isSignupComplete = false
       })
       //로그인
       builder
@@ -117,4 +121,5 @@ const authSlice = createSlice({
    },
 })
 
+export const { resetSignupState } = authSlice.actions
 export default authSlice.reducer

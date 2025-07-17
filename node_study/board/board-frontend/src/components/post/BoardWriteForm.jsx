@@ -46,10 +46,10 @@ function BoardWriteForm({ title, content, setTitle, setContent, handleSubmit }) 
 
    return (
       <Box component="form" onSubmit={wrappedHandleSubmit} encType="multipart/form-data">
-         <TextField label="제목" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mt: 2 }} required />
-         <TextField label="내용" fullWidth multiline rows={4} value={content} onChange={(e) => setContent(e.target.value)} sx={{ mt: 2 }} required />
+         <TextField label="제목" color="secondary" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mt: 2 }} required />
+         <TextField label="내용" color="secondary" fullWidth multiline rows={4} value={content} onChange={(e) => setContent(e.target.value)} sx={{ mt: 2 }} required />
 
-         <Button variant="contained" component="label" sx={{ mt: 2 }}>
+         <Button variant="contained" color="secondary" component="label" sx={{ mt: 2 }} style={{ marginLeft: '10px', marginRight: '10px' }}>
             이미지 업로드
             <input type="file" accept="image/*" hidden onChange={handleImageChange} />
          </Button>
@@ -60,7 +60,7 @@ function BoardWriteForm({ title, content, setTitle, setContent, handleSubmit }) 
             </Box>
          )}
 
-         <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+         <Button type="submit" variant="contained" color="secondary" sx={{ mt: 2 }}>
             등록하기
          </Button>
       </Box>

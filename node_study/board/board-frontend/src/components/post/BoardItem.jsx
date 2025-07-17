@@ -3,12 +3,28 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import dayjs from 'dayjs' //날짜 시간 포맷해주는 패키지
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { deletePostThunk, fetchPostsThunk } from '../../features/boardSlice'
 
-function BoardItem({ post, isAuthenticated, member }) {
-   // 게시물 삭제
+function BoardItem({ post }) {
+   const dispatch = useDispatch()
+   const navigate = useNavigate()
+
    const onClickDelete = (id) => {
-      console.log('삭제할 게시물 ID:', id)
+      const result = confirm('삭제하시겠습니까?')
+      if (result) {
+         dispatch(deletePostThunk(id))
+            .unwrap()
+            .then(() => {
+               dispatch(fetchPostsThunk())
+               navigate('/')
+            })
+            .catch((error) => {
+               console.error('삭제중 오류발생', error)
+               alert('삭제중 오류 발생' + error)
+            })
+      }
    }
 
    return (
@@ -38,23 +54,20 @@ function BoardItem({ post, isAuthenticated, member }) {
 
          <CardActions>
             {/* 좋아요 버튼 */}
-            <Button size="small" color="primary">
+            <Button size="small" color="error">
                <FavoriteBorderIcon fontSize="small" />
             </Button>
 
-            {/* 수정/삭제 버튼 - 로그인한 사용자가 작성자일 때만 표시 */}
-            {isAuthenticated && post.Member.id === member.id && (
-               <Box sx={{ p: 2 }}>
-                  <Link to={`/posts/edit/${post.id}`}>
-                     <IconButton aria-label="edit" size="small">
-                        <EditIcon fontSize="small" />
-                     </IconButton>
-                  </Link>
-                  <IconButton aria-label="delete" size="small" onClick={() => onClickDelete(post.id)}>
-                     <DeleteIcon fontSize="small" />
+            <Box sx={{ p: 2 }}>
+               <Link to={`/board/edit/${post.id}`}>
+                  <IconButton aria-label="edit" size="small">
+                     <EditIcon fontSize="small" />
                   </IconButton>
-               </Box>
-            )}
+               </Link>
+               <IconButton aria-label="delete" size="small" onClick={() => onClickDelete(post.id)}>
+                  <DeleteIcon fontSize="small" />
+               </IconButton>
+            </Box>
          </CardActions>
       </Card>
    )
