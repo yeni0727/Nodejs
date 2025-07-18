@@ -16,7 +16,7 @@ function BoardWrite() {
    const handleSubmit = (e, imageFile) => {
       e.preventDefault()
 
-      const formData = new FormData()
+      const formData = new FormData() //데이터는 formData 객체에 담겨 서버에 전송된다
       formData.append('title', title)
       formData.append('content', content)
       if (imageFile) formData.append('img', imageFile)
@@ -25,10 +25,6 @@ function BoardWrite() {
    }
 
    useEffect(() => {
-      // console.log('=== useEffect 실행 ===')
-      // console.log('현재 post 값:', post)
-      // console.log('현재 loading 값:', loading)
-      // console.log('현재 error 값:', error)
       if (post) {
          alert('게시글 업로드 성공')
          setTitle('')

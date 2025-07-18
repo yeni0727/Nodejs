@@ -5,7 +5,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import dayjs from 'dayjs' //날짜 시간 포맷해주는 패키지
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { deletePostThunk, fetchPostsThunk } from '../../features/postSlice'
+import { deletePostThunk } from '../../features/postSlice'
 
 function PostItem({ post, isAuthenticated, user }) {
    const dispatch = useDispatch()
@@ -18,7 +18,7 @@ function PostItem({ post, isAuthenticated, user }) {
          dispatch(deletePostThunk(id))
             .unwrap()
             .then(() => {
-               dispatch(fetchPostsThunk()) //삭제된후 바로 리스트 새로 불러오기
+               // dispatch(fetchPostsThunk()) //삭제된후 바로 리스트 새로 불러오기
                navigate('/')
             })
             .catch((error) => {
@@ -32,6 +32,7 @@ function PostItem({ post, isAuthenticated, user }) {
       <Card style={{ margin: '20px 0' }}>
          <CardMedia sx={{ height: 240 }} image={`${import.meta.env.VITE_APP_API_URL}${post.img}`} title={post.content} />
          <CardContent>
+            {/* 라우트 렌더링시 key를 동적으로 바꾸면 리액트를 완전히 새로운 컴포넌트로 인식 */}
             <Link to={`/my${post.User.id}`} style={{ textDecoration: 'none' }}>
                <Typography sx={{ color: 'primary.main' }}>@{post.User.nick} </Typography>
             </Link>

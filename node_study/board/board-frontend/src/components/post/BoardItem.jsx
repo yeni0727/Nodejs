@@ -5,7 +5,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import dayjs from 'dayjs' //날짜 시간 포맷해주는 패키지
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { deletePostThunk, fetchPostsThunk } from '../../features/boardSlice'
+import { deletePostThunk } from '../../features/boardSlice'
 
 function BoardItem({ post }) {
    const dispatch = useDispatch()
@@ -17,7 +17,6 @@ function BoardItem({ post }) {
          dispatch(deletePostThunk(id))
             .unwrap()
             .then(() => {
-               dispatch(fetchPostsThunk())
                navigate('/')
             })
             .catch((error) => {
@@ -31,7 +30,7 @@ function BoardItem({ post }) {
       <Card style={{ margin: '20px 0' }}>
          {post.img && <CardMedia sx={{ height: 400, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} image={`${import.meta.env.VITE_APP_API_URL}/uploads/${post.img}`} title={post.title} />}
          <CardContent>
-            {/* 작성자 정보 - Member 모델 기준 */}
+            {/* 작성자 정보*/}
             <Link to={`/my/${post.Member.id}`} style={{ textDecoration: 'none' }}>
                <Typography sx={{ color: 'primary.main' }}>@{post.Member.name}</Typography>
             </Link>
