@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const { Op } = require('sequelize')
 const { Item, Img } = require('../models')
-const { isAdmin } = require('./middlewares')
+const { isAdmin, verifyToken } = require('./middlewares')
 const { findOne } = require('../models/user')
 const router = express.Router()
 
@@ -39,7 +39,7 @@ const upload = multer({
 })
 
 // 상품등록 localhost:8000/item/
-router.post('/', isAdmin, upload.array('img'), async (req, res, next) => {
+router.post('/', verifyToken, isAdmin, upload.array('img'), async (req, res, next) => {
    try {
       // 업로드된 파일 확인
       if (!req.files) {
@@ -101,7 +101,7 @@ router.post('/', isAdmin, upload.array('img'), async (req, res, next) => {
 // localhost:8000/item?page=1&limit=3&sellCategory=SOLD_OUT&searchTerm=가방&searchCategory=itemDetail => 품절된 상품 중에서 상품설명 '가방'으로 검색
 
 // 전체 상품 불러오기(페이징, 검색 기능)
-router.get('/', async (req, res, next) => {
+router.get('/', verifyToken, async (req, res, next) => {
    try {
       const page = parseInt(req.query.page, 10) || 1
       const limit = parseInt(req.query.limit, 10) || 5
@@ -179,7 +179,7 @@ router.get('/', async (req, res, next) => {
 })
 
 //상품 삭제 localhost:8000/item/:id
-router.delete('/:id', isAdmin, async (req, res, next) => {
+router.delete('/:id', verifyToken, isAdmin, async (req, res, next) => {
    try {
       const id = req.params.id //상품id
 
@@ -206,7 +206,7 @@ router.delete('/:id', isAdmin, async (req, res, next) => {
 })
 
 // 특정 상품 불러오기 localhost:8000/item/:id
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', verifyToken, async (req, res, next) => {
    try {
       const id = req.params.id
 
@@ -239,7 +239,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // 상품 수정 localhost:8000/item/:id
-router.put('/:id', isAdmin, upload.array('img'), async (req, res, next) => {
+router.put('/:id', verifyToken, isAdmin, upload.array('img'), async (req, res, next) => {
    try {
       const id = req.params.id
       const { itemNm, price, stockNumber, itemDetail, itemSellStatus } = req.body
@@ -291,4 +291,5 @@ router.put('/:id', isAdmin, upload.array('img'), async (req, res, next) => {
       next(error)
    }
 })
+
 module.exports = router

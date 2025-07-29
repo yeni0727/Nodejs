@@ -7,6 +7,7 @@ import { formatWithComma } from '../../utils/priceSet'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchItemByIdThunk } from '../../features/itemSlice'
+import { createOrderThunk } from '../../features/orderSlice'
 import { useState, useEffect } from 'react'
 
 function ItemSellDetail() {
@@ -17,19 +18,42 @@ function ItemSellDetail() {
    const [orderPrice, setOrderPrice] = useState(0) // 총 상품가격
    const [orderComplete, setOrderComplete] = useState(false) // 주문완료 상태
 
-   //수량 증가 가격 계산
-   //처음 상세페 들어왔을때도 가격을 보여주기 위해 useEff사용
+   // 수량 증가시 총 가격 계산
+   // 처음 상세페이지 들어왔을때도 상품가격을 보여주기 위해 useEffect 사용
    useEffect(() => {
       if (item) {
-         //상품이 있다면 가격*수량
+         // 상품이 있다면 상품가격 * 수량
          setOrderPrice(item.price * count)
       }
-   }, [item, count]) //수량이 바뀔때마다 총 가격 변경
+   }, [item, count]) // 수량이 바뀔때마다 총 가격 변경
+
+   // 상품 주문
+   const handleBuy = () => {
+      dispatch(
+         createOrderThunk({
+            items: [
+               {
+                  itemId: id, // 상품 id
+                  count, // 상품수량
+               },
+            ],
+         })
+      )
+         .unwrap()
+         .then(() => {
+            alert('주문이 완료되었습니다.')
+            setOrderComplete((prev) => !prev) //state를 바꿔서 컴포넌트 재렌더링시 바뀐 재고가 보이도록 함
+         })
+         .catch((error) => {
+            console.error('주문 에러:', error)
+            alert('주문에 실패했습니다. ' + error)
+         })
+   }
 
    //상품 데이터 불러오기
    useEffect(() => {
       dispatch(fetchItemByIdThunk(id))
-   }, [dispatch, id])
+   }, [dispatch, id, orderComplete])
 
    return (
       <>
@@ -65,17 +89,9 @@ function ItemSellDetail() {
                            <Alert severity="error">품절</Alert>
                         ) : (
                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '300px' }}>
-                              <NumberInput
-                                 value={count}
-                                 onChange={(e) => {
-                                    setCount(Number(e.target.value))
-                                 }}
-                                 min={1}
-                                 max={item.stockNumber}
-                                 step={1}
-                              />
-                              <Typography variant="h6">총 가격:{formatWithComma(String(orderPrice))}</Typography>
-                              <Button variant="contained" color="primary">
+                              <NumberInput value={count} onChange={(e) => setCount(Number(e.target.value))} min={1} max={item.stockNumber} step={1} />
+                              <Typography variant="h6">총 가격: {formatWithComma(String(orderPrice))}원</Typography>
+                              <Button variant="contained" color="primary" onClick={handleBuy}>
                                  구매하기
                               </Button>
                            </Box>
@@ -95,7 +111,7 @@ function ItemSellDetail() {
                   <Grid container spacing={2}>
                      {item.Imgs.map((img, index) => (
                         <Grid key={index} xs={12} sm={6} md={4}>
-                           <CardMedia component="img" image={`${import.meta.env.VITE_APP_API_URL}${img.imgUrl}`} alt={`상세이미지 ${index + 1}`} sx={{ width: '100%', borderRadius: '8px' }} />
+                           <CardMedia component="img" image={`${import.meta.env.VITE_APP_API_URL}${img.imgUrl}`} alt={`상세 이미지 ${index + 1}`} sx={{ width: '100%', borderRadius: '8px' }} />
                         </Grid>
                      ))}
                   </Grid>

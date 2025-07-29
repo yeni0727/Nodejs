@@ -96,11 +96,18 @@ function Navbar({ isAuthenticated, user }) {
                      sx={{ display: { xs: 'block', md: 'none' } }}
                   >
                      {user && user.role === 'ADMIN' && (
-                        <MenuItem>
-                           <Link to="/items/createlist" style={{ color: 'black', textDecoration: 'none' }}>
-                              <Typography sx={{ textAlign: 'center' }}>상품등록</Typography>
-                           </Link>
-                        </MenuItem>
+                        <>
+                           <MenuItem>
+                              <Link to="/items/createlist" style={{ color: 'black', textDecoration: 'none' }}>
+                                 <Typography sx={{ textAlign: 'center' }}>상품등록</Typography>
+                              </Link>
+                           </MenuItem>
+                           <MenuItem>
+                              <Link to="/chart" style={{ color: 'black', textDecoration: 'none' }}>
+                                 <Typography sx={{ textAlign: 'center' }}>통계</Typography>
+                              </Link>
+                           </MenuItem>
+                        </>
                      )}
 
                      <MenuItem>
@@ -134,11 +141,18 @@ function Navbar({ isAuthenticated, user }) {
                </Typography>
                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                   {user && user.role === 'ADMIN' && (
-                     <MenuItem>
-                        <Link to="/items/createlist" style={{ color: 'black', textDecoration: 'none' }}>
-                           <Typography sx={{ textAlign: 'center' }}>상품등록</Typography>
-                        </Link>
-                     </MenuItem>
+                     <>
+                        <MenuItem>
+                           <Link to="/items/createlist" style={{ color: 'black', textDecoration: 'none' }}>
+                              <Typography sx={{ textAlign: 'center' }}>상품등록</Typography>
+                           </Link>
+                        </MenuItem>
+                        <MenuItem>
+                           <Link to="/chart" style={{ color: 'black', textDecoration: 'none' }}>
+                              <Typography sx={{ textAlign: 'center' }}>통계</Typography>
+                           </Link>
+                        </MenuItem>
+                     </>
                   )}
                   <MenuItem>
                      <Typography sx={{ textAlign: 'center' }}>상품구매</Typography>
@@ -192,6 +206,11 @@ function Navbar({ isAuthenticated, user }) {
                               <Typography sx={{ textAlign: 'center' }}>1:1 채팅 문의</Typography>
                            </Link>
                         </MenuItem>
+                        {user && user.role === 'ADMIN' && (
+                           <Link to="/token" style={{ color: 'black', textDecoration: 'none' }}>
+                              <Typography sx={{ textAlign: 'center' }}>토큰 발급</Typography>
+                           </Link>
+                        )}
                      </Menu>
                   </Box>
                ) : (
